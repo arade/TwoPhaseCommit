@@ -11,21 +11,17 @@ In this project, simple database system that supports local/distributed transact
 In the server application in addition to the function dedicated to serving the client, multiple helper function are implemented. The server can handle multiple ongoing transaction. In case the server crush a proper recovery mechanism is implemented.
 Database is structures as key-value-state where key is a unique identifier , value is any integer value and state is the last state of the system where that field was modified.
 
-Initialization: whenever we run the server it goes through initialization process .
-		 It will first initialize variables we used in our system.
-		 It check if the required database/log-files/directories are in place. If not it will create a new set of files in a new folder named with a format(db_program_number).
-		 Then the state of the system will be read from the files.
-		 It will then do a recovery process which will be explained later.
-function: void dm_initialize(void)
-Local Transaction Implementation:
- the process stars by client requesting for a local transaction. This
-request is answered by the server by giving a local ID and updating the data managers state for the last
-used local id.
-function: int * get_local_id_1_svc(struct to_localID *request_LID, struct svc_req *req)
-Using this local ID the client can modify all the key that need modification. This modifications are
-logged in a temporary file in the server. We also log the state of the database at the time of
-modification.
-function: int * modify_db_1_svc(to_dm *db_mod, struct svc_req *req)
+Initialization [function: void dm_initialize(void)]: whenever we run the server it goes through initialization process.
+It will first initialize variables we used in our system.
+It check if the required database/log-files/directories are in place. If not it will create a new set of files in a new folder named with a format(db_program_number).
+Then the state of the system will be read from the files.
+It will then do a recovery process which will be explained later.
+
+Local Transaction Implementation [function: int * get_local_id_1_svc(struct to_localID *request_LID, struct svc_req *req)]: the process stars by client requesting for a local transaction. This request is answered by the server by giving a local ID and updating the data managers state for the last used local id. 
+
+[ function: int * modify_db_1_svc(to_dm *db_mod, struct svc_req *req) ] Using this local ID the client can modify all the key that need modification. This modifications are logged in a temporary file in the server. We also log the state of the database at the time of modification.
+
+
 Finally the client command the server weather to commit or not. If abort the server will clean the
 temporary files associated with the local ID log the action in a log file. If commit it will first check if
 the keys have undergone state change after the modification or if any of the keys are in a blocked state
