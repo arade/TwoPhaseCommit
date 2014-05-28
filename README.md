@@ -17,37 +17,23 @@ It check if the required database/log-files/directories are in place. If not it 
 Then the state of the system will be read from the files.
 It will then do a recovery process which will be explained later.
 
-Local Transaction Implementation [function: int * get_local_id_1_svc(struct to_localID *request_LID, struct svc_req *req)]: the process stars by client requesting for a local transaction. This request is answered by the server by giving a local ID and updating the data managers state for the last used local id. 
+Local Transaction Implementation 
+[function: int * get_local_id_1_svc(struct to_localID *request_LID, struct svc_req *req)]: the process stars by client requesting for a local transaction. This request is answered by the server by giving a local ID and updating the data managers state for the last used local id. 
 
-[ function: int * modify_db_1_svc(to_dm *db_mod, struct svc_req *req) ] Using this local ID the client can modify all the key that need modification. This modifications are logged in a temporary file in the server. We also log the state of the database at the time of modification.
+[function: int * modify_db_1_svc(to_dm *db_mod, struct svc_req *req)] Using this local ID the client can modify all the key that need modification. This modifications are logged in a temporary file in the server. We also log the state of the database at the time of modification.
 
 
-Finally the client command the server weather to commit or not. If abort the server will clean the
-temporary files associated with the local ID log the action in a log file. If commit it will first check if
-the keys have undergone state change after the modification or if any of the keys are in a blocked state
-(blocked meaning a key is in a process of a commit by other transaction) . If any of the key changes
-state or is in blocking that local id will automatically aborted. Otherwise it will put all the keys in a
-blocked state until we finished writing the modification on the database. It also put the local id in the
-blocking list(we use this in case the system fails and need to do recovery process). When we finalize
-updating the database, we will remove local id from blocking list and also all the temporary files
-associated with that local ID.
-function: int * commit_local_1_svc(commit_struct *decison, struct svc_req *req)
+[function: int * commit_local_1_svc(commit_struct *decison, struct svc_req *req)]Finally the client command the server weather to commit or not. If abort the server will clean the temporary files associated with the local ID log the action in a log file. If commit it will first check if the keys have undergone state change after the modification or if any of the keys are in a blocked state (blocked meaning a key is in a process of a commit by other transaction) . If any of the key changes state or is in blocking that local id will automatically aborted. Otherwise it will put all the keys in a blocked state until we finished writing the modification on the database. It also put the local id in the blocking list(we use this in case the system fails and need to do recovery process). When we finalize updating the database, we will remove local id from blocking list and also all the temporary files associated with that local ID.
+
 Distributed Transaction Implementation:
- the process starts from requesting any of the server for a
-global ID. The server will give a unique ID and create a recovery list file.(we will call this server a
-coordinator) . It will update the data managers state for the last used global id.
-function: int * get_global_id_1_svc(void *arg, struct svc_req *req)
-Using this global ID and programing number of the coordinator the client will ask any other data
-manager(which we will call cohort N.B. it may including the coordinator itself) for a local id.
-The requested cohort will first register it self on the coordinator. In the coordinator side this request is
-handled by logging the local id and program number on a recovery list file . The cohort will then
-return a unique local ID to the client.
-Function : int * get_local_id_1_svc(struct to_localID *request_LID, struct svc_req *req)
-int * register_dm_1_svc(coord_reg *reg_dm, struct svc_req *req)
-Using this local ID the client can modify all the key that need modification. This modification are
-logged in a temporary file in the server. We also log the state of the database at the time of
-modification.
-function: int * modify_db_1_svc(to_dm *db_mod, struct svc_req *req)
+
+[function: int * get_global_id_1_svc(void *arg, struct svc_req *req)]The process starts from requesting any of the server for a global ID. The server will give a unique ID and create a recovery list file.(we will call this server a coordinator) . It will update the data managers state for the last used global id.
+
+[Function : int * get_local_id_1_svc(struct to_localID *request_LID, struct svc_req *req)
+int * register_dm_1_svc(coord_reg *reg_dm, struct svc_req *req)] Using this global ID and programing number of the coordinator the client will ask any other data manager(which we will call cohort N.B. it may including the coordinator itself) for a local id. The requested cohort will first register it self on the coordinator. In the coordinator side this request is handled by logging the local id and program number on a recovery list file . The cohort will then return a unique local ID to the client.
+
+[function: int * modify_db_1_svc(to_dm *db_mod, struct svc_req *req)] Using this local ID the client can modify all the key that need modification. This modification are logged in a temporary file in the server. We also log the state of the database at the time of modification.
+
 Finally the client command the coordinator weather to commit or not. If abort the cohort will simply
 tell all the involved cohorts to abort. It then clean up temporary files associated with the global id and
 register the action to a log file. On the cohort side it will also clean the temporary files associated with
