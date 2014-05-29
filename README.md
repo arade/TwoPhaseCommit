@@ -7,7 +7,7 @@ Distributed Systems 2012 – 2013
 
 A Distributed Database System
 
-In this project, simple database system that supports local/distributed transactions is implemented. A server side functions and a corresponding client (test) application has been fully implemented with the in the scope of the assignment. the programming language used is C with RPC . In the server application in addition to the function dedicated to serving the client, multiple helper function are implemented. The server can handle multiple ongoing transaction. In case the server crush a proper recovery mechanism is implemented. Database is structures as key-value-state where key is a unique identifier , value is any integer value and state is the last state of the system where that field was modified.
+In this project, simple database system that supports local/distributed transactions is implemented. A server side functions and a corresponding client (test) application has been fully implemented. The programming language used is C with RPC . In the server application in addition to the function dedicated to serving the client, multiple helper function are implemented. The server can handle multiple ongoing transaction. In case the server crush a proper recovery mechanism is implemented. Database is structures as key-value-state where key is a unique identifier , value is any integer value and state is the last state of the system where that field was modified.
 
 Initialization 
 
